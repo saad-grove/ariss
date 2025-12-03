@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PanelUser {
+  id         String        @id
+  email      String        @unique
+  fullname   String
+  role       PanelUserType
+  created_at DateTime      @default(now())
+
+  category    Category[]
+  subcategory Subcategory[]
+  product     Product[]
+  discount    Discount[]
+}
+
+model Notification {
+  id          String   @id
+  title       String
+  description String
+  author      String?
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now())
+}
+
+model Customer {
+  id               String       @id
+  email            String       @unique
+  phone            String       @unique
+  name             String
+  profile_picture  String?
+  role             CustomerType
+  is_approved      Boolean      @default(false)
+  gstin            String?
+  business         String?
+  shipping_address Json?
+  billing_address  Json?
+  created_at       DateTime     @default(now())
+
+  dealer_id   String?
+  dealer_user Customer?  @relation("DealerUser", fields: [dealer_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  dealer      Customer[] @relation("DealerUser")
+
+  discount Discount[]
+}
+
+model Category {
+  id          String   @id
+  title       String   @unique
+  description String?
+  image       String
+  created_at  DateTime @default(now())
+
+  panel_user_id String?
+  panel_user    PanelUser? @relation(fields: [panel_user_id], references: [id], onDelete: Cascade)
+
+  subcategory Subcategory[]
+}
+
+model Subcategory {
+  id          String   @id
+  title       String   @unique
+  description String?
+  image       String
+  created_at  DateTime @default(now())
+
+  category_id String?
+  category    Category? @relation(fields: [category_id], references: [id])
+
+  panel_user_id String?
+  panel_user    PanelUser? @relation(fields: [panel_user_id], references: [id], onDelete: Cascade)
+
+  product Product[]
+}
+
+model Product {
+  id          String      @id
+  title       String      @unique
+  price       Float
+  quantity    Float
+  description Json
+  img1        String
+  img2        String
+  img3        String?
+  img4        String?
+  is_public   Boolean     @default(false)
+  type        ProductType @default(NEW)
+  created_at  DateTime    @default(now())
+
+  panel_user    PanelUser? @relation(fields: [panel_user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  panel_user_id String?
+
+  subcategory    Subcategory? @relation(fields: [subcategory_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  subcategory_id String?
+
+  discount Discount?
+}
+
+model OTP {
+  id         String   @id @default(nanoid())
+  email      String   @unique
+  code       String
+  expires_at DateTime
+  created_at DateTime @default(now())
+}
+
+model Discount {
+  coupon_code      String   @id
+  expiry_date      DateTime
+  discounted_price Float
+  created_at       DateTime @default(now())
+
+  panel_user_id String?
+  panel_user    PanelUser? @relation(fields: [panel_user_id], references: [id])
+
+  customer_id String?
+  customer    Customer? @relation(fields: [customer_id], references: [id])
+
+  product_id String  @unique
+  product    Product @relation(fields: [product_id], references: [id])
+}
+
+enum CustomerType {
+  DEALER
+  TECHNICIAN
+  BACKOFFICE
+}
+
+enum PanelUserType {
+  ADMIN
+  EMPLOYEE
+}
+
+enum ProductType {
+  NEW
+  TRENDING
+  HOT
+  BEST_SELLING
+}

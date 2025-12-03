@@ -1,0 +1,86 @@
+import { Link, useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../components/ui/dropdown-menu";
+import { SignOutButton, useUser } from "@clerk/clerk-react";
+
+export default function Profile() {
+  const { user } = useUser();
+  const navigate = useNavigate();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="cursor-pointer shadow ml-5 mr-1">
+          <AvatarImage
+            src={user?.imageUrl}
+            alt={user?.fullName!}
+            className="rounded-full"
+          />
+          <AvatarFallback>CN</AvatarFallback>
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56 font-work rounded-xl">
+        <DropdownMenuLabel>{user?.fullName}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            onClick={() => navigate("/profile")}
+            className="cursor-pointer"
+          >
+            Profile
+            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          {/* <DropdownMenuItem onClick={() => navigate('/members/admins')} className="cursor-pointer">
+                        Admin Members
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                        onClick={() => navigate('/members/employees')}
+                        className="cursor-pointer"
+                    >
+                        Employee Members
+                    </DropdownMenuItem> */}
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent>
+                <DropdownMenuItem className="cursor-pointer">
+                  Email
+                </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  Clerk
+                </DropdownMenuItem>
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer">GitHub</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer">
+          <Link to="/support">Help</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem disabled>API</DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer text-red-500">
+          <SignOutButton>Log out</SignOutButton>
+          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
