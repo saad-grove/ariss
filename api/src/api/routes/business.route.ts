@@ -12,6 +12,7 @@ businessRouter.use("/employee", businessEmployeeRouter);
 
 businessRouter.use("/remove/:email", deleteCustomerController);
 
+businessRouter.post("/register", customerController.registerOwnerController);
 businessRouter.post("/login", customerController.loginUserController);
 
 businessRouter.get(
