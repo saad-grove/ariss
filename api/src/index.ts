@@ -1,5 +1,10 @@
+import serverless from "serverless-http";
 import app from "./server";
 
-const PORT = process.env.PORT || 8080;
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
-app.listen(PORT, () => console.log(`Server running on PORT: ${PORT}`));
+export default serverless(app);

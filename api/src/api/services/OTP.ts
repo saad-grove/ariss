@@ -1,22 +1,24 @@
 import crypto from "crypto";
-import { Resend } from "resend";
+import emailTransporter from "../../lib/email-transporter";
 import prisma from "../../lib/db";
-
-const resend = new Resend("re_ZupCyZo9_MW5sciTBNx9efBEa17gQx9pw");
 
 export const generateOTP = () => crypto.randomInt(100000, 999999).toString();
 
 export const sendOTP = async (email: string, otp: string) => {
-  await resend.emails.send({
-    from: process.env.EMAIL_USER!,
+  const mailOption = {
+    from: process.env.EMAIL_USER,
     to: email,
     subject: "Your OTP Code",
     text: `Your OTP code is: ${otp}. It expires in 5 minutes.`,
-  });
+  };
+
+  await emailTransporter.sendMail(mailOption);
 };
 
 export const storeOTP = async (email: string, otp: string) => {
-  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+  // upsert ensures only one OTP per email
   await prisma.oTP.upsert({
     where: { email },
     update: { code: otp, expires_at: expiresAt },
